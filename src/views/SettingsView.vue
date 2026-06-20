@@ -135,8 +135,25 @@
         <div v-if="feedbackMsg" class="feedback-msg" :class="feedbackType">{{ feedbackMsg }}</div>
       </div>
 
-      <!-- Data -->
+      <!-- XP Reset -->
       <div class="settings-section animate-slide-up" style="animation-delay:0.14s">
+        <div class="section-title">Fortschritt</div>
+        <div class="card settings-card">
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-label">XP und Level zurücksetzen</div>
+              <div class="setting-desc">Setzt XP, Level und Achievements auf 0. Gewohnheiten und Verlauf bleiben erhalten.</div>
+            </div>
+          </div>
+          <div class="setting-divider"/>
+          <button class="btn btn-danger btn-block" style="margin-top:4px" @click="confirmXPReset = true">
+            XP zurücksetzen
+          </button>
+        </div>
+      </div>
+
+      <!-- Data -->
+      <div class="settings-section animate-slide-up" style="animation-delay:0.16s">
         <div class="section-title">Daten</div>
         <div class="card settings-card">
           <div class="setting-row">
@@ -162,16 +179,30 @@
     </div>
   </div>
 
-  <!-- Reset confirm -->
-  <Modal v-model="confirmReset" title="Daten loschen?">
+  <!-- XP Reset confirm -->
+  <Modal v-model="confirmXPReset" title="XP zurücksetzen?">
     <div class="reset-confirm">
       <p class="reset-text">
-        Alle Gewohnheiten, Abschlusshistorie, XP und Achievements werden
-        unwiderruflich geloscht. Bist du sicher?
+        Alle XP, dein Level und alle Achievements gehen verloren.
+        Deine Gewohnheiten und der Verlauf bleiben erhalten.
+      </p>
+      <div class="reset-actions">
+        <button class="btn btn-ghost" @click="confirmXPReset = false">Abbrechen</button>
+        <button class="btn btn-danger" @click="executeXPReset">XP zurücksetzen</button>
+      </div>
+    </div>
+  </Modal>
+
+  <!-- Reset confirm -->
+  <Modal v-model="confirmReset" title="Alle Daten löschen?">
+    <div class="reset-confirm">
+      <p class="reset-text">
+        Alle Gewohnheiten, Verlauf, XP und Achievements werden
+        unwiderruflich gelöscht. Bist du sicher?
       </p>
       <div class="reset-actions">
         <button class="btn btn-ghost" @click="confirmReset = false">Abbrechen</button>
-        <button class="btn btn-danger" @click="executeReset">Alles loschen</button>
+        <button class="btn btn-danger" @click="executeReset">Alles löschen</button>
       </div>
     </div>
   </Modal>
@@ -197,6 +228,7 @@ const gamificationStore = useGamificationStore()
 const { settings } = settingsStore
 
 const confirmReset = ref(false)
+const confirmXPReset = ref(false)
 const exportLoading = ref(false)
 const importLoading = ref(false)
 const feedbackMsg = ref('')
@@ -289,6 +321,12 @@ function updateTime(type: 'weekday' | 'weekend', slot: string, time: string): vo
   if (settings.notifications.enabled) {
     scheduleNotificationsForToday(settings.notifications, habitsStore.todayExceptionDay !== null)
   }
+}
+
+function executeXPReset(): void {
+  gamificationStore.resetXP()
+  confirmXPReset.value = false
+  showFeedback('XP und Level wurden zurückgesetzt', 'success')
 }
 
 function executeReset(): void {

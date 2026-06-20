@@ -79,6 +79,32 @@ export const useGamificationStore = defineStore('gamification', () => {
     persist()
   }
 
+  function removeXP(amount: number): void {
+    profile.value = {
+      ...profile.value,
+      totalXP: Math.max(0, profile.value.totalXP - amount),
+    }
+    const info = levelFromTotalXP(profile.value.totalXP)
+    profile.value = {
+      ...profile.value,
+      level: info.level,
+      currentXP: info.currentXP,
+    }
+    persist()
+  }
+
+  function resetXP(): void {
+    profile.value = {
+      level: 1,
+      currentXP: 0,
+      totalXP: 0,
+      unlockedAchievements: [],
+      longestStreak: 0,
+    }
+    recentXPEvents.value = []
+    persist()
+  }
+
   function tryUnlockAchievement(achievementId: string, value: number): void {
     if (profile.value.unlockedAchievements.some(a => a.achievementId === achievementId)) return
 
@@ -131,6 +157,8 @@ export const useGamificationStore = defineStore('gamification', () => {
     levelInfo,
     xpProgress,
     addXP,
+    removeXP,
+    resetXP,
     tryUnlockAchievement,
     dismissToast,
     dismissLevelUp,

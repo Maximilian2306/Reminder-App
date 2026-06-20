@@ -129,10 +129,23 @@ export const useHabitsStore = defineStore('habits', () => {
   }
 
   function uncompleteHabit(habitId: string): void {
+    const gamification = useGamificationStore()
+    const habit = habits.value.find(h => h.id === habitId)
+
+    const weeklyBefore = getWeeklyCount(habitId)
+    const monthlyBefore = getMonthlyCount(habitId)
+
     completions.value = completions.value.filter(
       c => !(c.habitId === habitId && c.date === todayDate.value)
     )
     persist()
+
+    let xpToRemove = 15
+    if (habit) {
+      if (weeklyBefore === habit.weeklyMinGoal) xpToRemove += 75
+      if (monthlyBefore === habit.monthlyMinGoal) xpToRemove += 200
+    }
+    gamification.removeXP(xpToRemove)
   }
 
   function addHabit(data: Omit<Habit, 'id' | 'createdAt' | 'isActive'>): Habit {
